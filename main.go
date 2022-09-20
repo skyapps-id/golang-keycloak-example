@@ -25,9 +25,11 @@ func main() {
 	if port == "" {
 		port = "3000"
 	}
+	// Pkg
+	keycloak := pkg.NewKeycloak()
+	oidc := pkg.NewOpenID()
 
 	// User
-	keycloak := pkg.NewKeycloak()
 	userService := service.NewUserService(keycloak)
 	userController := controller.NewUserController(userService)
 
@@ -36,7 +38,10 @@ func main() {
 	todoService := service.NewTodoService(todoRepository)
 	todoController := controller.NewTodoController(todoService)
 
-	middlerware := middleware.NewMiddlewares(keycloak)
+	// Middlerware
+	middlerware := middleware.NewMiddlewares(keycloak, oidc)
+
+	// Validation
 	validation := pkg.NewCustomValidator()
 
 	e := echo.New()
@@ -48,6 +53,7 @@ func main() {
 	e.POST("/user/logout", userController.Logout)
 	e.POST("/user/info", userController.Info)
 	e.GET("/todo", todoController.Todo, middlerware.Authenticate)
+	e.GET("/todo/with-oidc", todoController.Todo, middlerware.AuthenticateOIDC)
 
 	e.Logger.Fatal(e.Start(":3000"))
 }

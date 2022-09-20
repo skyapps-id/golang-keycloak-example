@@ -1,0 +1,18 @@
+With recent keycloak version 4.6.0 the client id is apparently no longer automatically added to the audience field 'aud' of the access token. Therefore even though the login succeeds the client rejects the user. To fix this you need to configure the audience for your clients (compare doc [2]).
+
+Configure audience in Keycloak
+- Add realm or configure existing
+- Add client my-app or use existing
+- Goto to the newly added "Client Scopes" menu [1]
+    - Add Client scope 'good-service'
+    - Within the settings of the 'good-service' goto Mappers tab
+        - Create Protocol Mapper 'my-app-audience'
+            - Name: my-app-audience
+            - Choose Mapper type: Audience
+            - Included Client Audience: my-app
+            - Add to access token: on
+        - Configure client my-app in the "Clients" menu
+            - Client Scopes tab in my-app settings
+            - Add available client scopes "good-service" to assigned default client scopes
+
+https://stackoverflow.com/questions/53550321/keycloak-gatekeeper-aud-claim-and-client-id-do-not-match
